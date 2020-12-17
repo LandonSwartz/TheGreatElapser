@@ -73,7 +73,7 @@ def main():
                                                  'and find the time since first photo of experiment')
 
     parser.add_argument('--path', '-p', type=str, help='path to folder to execute', required=True)
-    parser.add_argument('--single', '-s', type=bool, help='Add this option to just create csv from single folder')
+    parser.add_argument('--single', '-s', action = 'store_true', help='Add this option to just create csv from single folder')
 
     args = parser.parse_args()
 
@@ -83,7 +83,7 @@ def main():
 
     # if single folder csv
     if args.single is not None:
-        print(os.getcwd())
+        #print(os.getcwd())
         Elapse(os.getcwd())
         exit()
 
@@ -92,15 +92,18 @@ def main():
     threads = list()
     #getting the position folders from main directory
     contents = os.listdir()
-    print(contents)
+    #print(contents)
     dir = os.getcwd()
     positionFolders = []
 
     for folder in contents:
         if "Position" in folder:
             folder_path = os.path.join(dir, folder)
-            print(folder_path)
+            #print(folder_path)
             positionFolders.append(folder_path)
+        else:
+            print('Check given path again that it includes position folders')
+            exit()
 
     #multithreading - i will figure you out some day
     '''for i in range(len(positionFolders)):
