@@ -4,7 +4,7 @@
 import csv
 import os
 from datetime import datetime
-import threading
+import multiprocessing
 import argparse
 
 #Reads in all .png files in current working directory and returns the filenames in a list
@@ -73,23 +73,23 @@ def main():
                                                  'and find the time since first photo of experiment')
 
     parser.add_argument('--path', '-p', type=str, help='path to folder to execute', required=True)
-    parser.add_argument('--single', '-s', action = 'store_true', help='Add this option to just create csv from single folder')
+    parser.add_argument('--single', '-s', action='store_true', help='Add this option to just create csv from single folder')
 
     args = parser.parse_args()
 
     #change path is provided
     if args.path is not None:
         os.chdir(args.path)
+        print(os.getcwd())
 
     # if single folder csv
-    if args.single is not None:
-        #print(os.getcwd())
+    if args.single is True:
         Elapse(os.getcwd())
         exit()
 
     #otherwise going through the entire folder
     #setting up threads
-    threads = list()
+    processes = list()
     #getting the position folders from main directory
     contents = os.listdir()
     #print(contents)
@@ -107,18 +107,15 @@ def main():
 
     #multithreading - i will figure you out some day
     '''for i in range(len(positionFolders)):
-        x = threading.Thread(target=Elapse, args=(positionFolders[i],))
-        threads.append(x)
+        x = multiprocessing.Process(target=Elapse, args=(positionFolders[i],))
+        processes.append(x)
         try:
             x.start()
         except:
-            print('Fail to start thread for Position ' + positionFolders[i])
+            print('Fail to start process for Position ' + positionFolders[i])
 
-    for t in threads:
-        t.join()'''
-
-    #for index, thread in enumerate(threads):
-        #thread.join()
+    for p in processes:
+        p.join() #wait for process to end'''
 
     #sequential version until figure out multi-threading
     for i in range(len(positionFolders)):
