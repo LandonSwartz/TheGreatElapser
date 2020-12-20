@@ -35,7 +35,7 @@ def writeCSV(data):
             elapse = line[2]
             writer.writerow([num, original, elapse])
 
-# Function taking in first photo date, the list of photo file names, lenght of that list (to find number of photos),
+# Function taking in first photo date, the list of photo file names, length of that list (to find number of photos),
 # and data dictionary for storing the results. Returns the data structure
 def timeElapsed(firstDate, photoList, length, data):
     for i in range(1, length):
@@ -69,58 +69,59 @@ def Elapse(path):
     writeCSV(data)
 
 def main():
+    #argument parser and parsing
     parser = argparse.ArgumentParser(description='Take directory of position directories from experiment '
                                                  'and find the time since first photo of experiment')
 
-    parser.add_argument('--path', '-p', type=str, help='path to folder to execute', required=True)
-    parser.add_argument('--single', '-s', action='store_true', help='Add this option to just create csv from single folder')
+    parser.add_argument('--path', '-p', type=str, help='Path to folder to execute', required=True)
+    parser.add_argument('--single', '-s', action='store_true', help='Add this option to just create csv from single folder from provided path')
+    parser.add_argument('--multi', '-m', action='store_true', help='This flag will use multi-processing on the script. Only needed for large number of position folders')
 
     args = parser.parse_args()
 
     #change path is provided
     if args.path is not None:
         os.chdir(args.path)
-        print(os.getcwd())
 
-    # if single folder csv
+    # if single folder csv argument passed
+    # then do single folder sequential
     if args.single is True:
         Elapse(os.getcwd())
         exit()
 
-    #otherwise going through the entire folder
-    #setting up threads
-    processes = list()
     #getting the position folders from main directory
     contents = os.listdir()
-    #print(contents)
-    dir = os.getcwd()
+    dir = os.getcwd() #main directory provided
     positionFolders = []
 
+    # otherwise start going through the entire folder of position folders
+    # setting up processes
+    processes = list()
+    threads = list()
     for folder in contents:
         if "Position" in folder:
             folder_path = os.path.join(dir, folder)
-            #print(folder_path)
             positionFolders.append(folder_path)
         else:
             print('Check given path again that it includes position folders')
             exit()
 
-    #multithreading - i will figure you out some day
-    '''for i in range(len(positionFolders)):
-        x = multiprocessing.Process(target=Elapse, args=(positionFolders[i],))
-        processes.append(x)
-        try:
-            x.start()
-        except:
-            print('Fail to start process for Position ' + positionFolders[i])
+    #multiprocessing
+    if args.multi is True:
+        with multiprocessing.Pool() as pool:
+            pool.map(Elapse, positionFolders)
+            pool.close()
+            pool.join()
 
-    for p in processes:
-        p.join() #wait for process to end'''
-
-    #sequential version until figure out multi-threading
+    #sequential process
     for i in range(len(positionFolders)):
-        Elapse(positionFolders[i])
+        try:
+            Elapse(positionFolders[i])
+        except:
+            print(f"Program failed to process elapse time for folder {positionFolders[i]}")
 
+    #To mark that program was successful
+    print("The program was successful")
 
 if __name__ == "__main__":
     main()
